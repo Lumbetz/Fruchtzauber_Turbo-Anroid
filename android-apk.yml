@@ -1,0 +1,34 @@
+name: Fruchtzauber Android APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Projekt herunterladen
+        uses: actions/checkout@v4
+      - name: Java einrichten
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Android SDK einrichten
+        uses: android-actions/setup-android@v4
+      - name: SDK 35 installieren
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Gradle einrichten
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: APK erstellen
+        run: gradle --no-daemon assembleDebug
+      - name: APK bereitstellen
+        uses: actions/upload-artifact@v4
+        with:
+          name: Fruchtzauber-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
